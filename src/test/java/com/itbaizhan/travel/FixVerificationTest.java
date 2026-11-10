@@ -249,4 +249,107 @@ class FixVerificationTest {
         verify(memberMapper).insert(member);
         verify(memberMapper, never()).deleteById(anyInt());
     }
+
+    /**
+     * 注册时生成的激活链接格式正确，且激活码带 24 小时有效期
+     */
+    @Test
+    void register_shouldGenerateValidActivationLinkAndExpiry() {
+        ReflectionTestUtils.setField(memberService, "projectPath", "http://localhost:8080");
+        Member member = new Member();
+        member.setMid(102);
+        member.setUsername("tester3");
+        member.setPassword("123456");
+        member.setPhoneNum("13800000002");
+        member.setEmail("link@example.com");
+        when(encoder.encode(anyString())).thenReturn("$2a$encoded");
+        when(mailUtils.sendMail(anyString(), anyString(), anyString())).thenReturn(true);
+
+        memberService.register(member);
+
+        ArgumentCaptor<String> textCaptor = ArgumentCaptor.forClass(String.class);
+        verify(mailUtils).sendMail(eq("link@example.com"), textCaptor.capture(), anyString());
+        String text = textCaptor.getValue();
+        assertTrue(text.contains("http://localhost:8080/frontdesk/member/active?activeCode="));
+        assertTrue(member.getActiveCode().matches("[0-9a-f-]{36}"));
+        assertTrue(text.contains(member.getActiveCode()));
+        long ttl = member.getActiveCodeExpire() - System.currentTimeMillis();
+        assertTrue(ttl > 23 * 60 * 60 * 1000L && ttl <= 24 * 60 * 60 * 1000L);
+    }
+
+    /**
+     * 激活码为空白时应提示链接不完整
+     */
+    @Test
+    void active_withBlankCode_shouldPromptIncompleteLink() {
+        assertTrue(memberService.active(" ").contains("不完整"));
+        verify(memberMapper, never()).selectOne(any());
+    }
+
+    /**
+     * 激活码不存在（已被使用或伪造）时给出明确引导
+     */
+    @Test
+    void active_withUnknownCode_shouldPromptInvalidOrUsed() {
+        when(memberMapper.selectOne(any())).thenReturn(null);
+
+        String message = memberService.active("not-exists-code");
+
+        assertTrue(message.contains("无效或已使用"));
+        assertTrue(message.contains("/frontdesk/login"));
+        verify(memberMapper, never()).update(isNull(), any());
+    }
+
+    /**
+     * 账号已激活时不应重复激活
+     */
+    @Test
+    void active_whenAlreadyActivated_shouldPromptAlreadyActive() {
+        Member member = new Member();
+        member.setMid(103);
+        member.setActive(true);
+        member.setActiveCode("code-103");
+        when(memberMapper.selectOne(any())).thenReturn(member);
+
+        String message = memberService.active("code-103");
+
+        assertTrue(message.contains("已激活"));
+        verify(memberMapper, never()).update(isNull(), any());
+    }
+
+    /**
+     * 激活码超过 24 小时应提示已过期
+     */
+    @Test
+    void active_whenExpired_shouldPromptExpired() {
+        Member member = new Member();
+        member.setMid(104);
+        member.setActive(false);
+        member.setActiveCode("code-104");
+        member.setActiveCodeExpire(System.currentTimeMillis() - 1000);
+        when(memberMapper.selectOne(any())).thenReturn(member);
+
+        String message = memberService.active("code-104");
+
+        assertTrue(message.contains("已过期"));
+        verify(memberMapper, never()).update(isNull(), any());
+    }
+
+    /**
+     * 激活成功时应同时清除激活码，保证链接只能使用一次
+     */
+    @Test
+    void active_whenValid_shouldActivateAndClearCode() {
+        Member member = new Member();
+        member.setMid(105);
+        member.setActive(false);
+        member.setActiveCode("code-105");
+        member.setActiveCodeExpire(System.currentTimeMillis() + 60 * 60 * 1000L);
+        when(memberMapper.selectOne(any())).thenReturn(member);
+
+        String message = memberService.active("code-105");
+
+        assertTrue(message.contains("激活成功"));
+        verify(memberMapper).update(isNull(), any());
+    }
 }
