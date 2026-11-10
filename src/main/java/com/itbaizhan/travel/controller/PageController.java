@@ -16,6 +16,10 @@ public class PageController {
     //访问前台页面（排除 member 和 login 路径）
     @RequestMapping(value = "/frontdesk/{page}", params = "!member")
     public String showPageFrontdesk(@PathVariable String page){
+        // 线路列表页依赖查询结果，直接访问时跳转到真正的查询入口
+        if ("route_list".equals(page)){
+            return "redirect:/frontdesk/product/routeList";
+        }
         return "/frontdesk/"+page;
     }
 

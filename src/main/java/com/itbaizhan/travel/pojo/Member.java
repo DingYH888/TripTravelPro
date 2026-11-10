@@ -19,4 +19,5 @@ public class Member {
     private Date birthday; //生日
     private boolean active; //是否激活
     private String activeCode;//激活码
+    private Long activeCodeExpire; //激活码过期时间（毫秒时间戳）
 }

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
@@ -20,8 +21,7 @@ import java.util.Date;
 public class LogAop {
     @Autowired
     private HttpServletRequest request;
-    @Autowired
-    private final static Logger logger = LoggerFactory.getLogger(LogAop.class);
+    private static final Logger logger = LoggerFactory.getLogger(LogAop.class);
 
 
     @Pointcut("execution(* com.itbaizhan.travel.controller.backstage.*.*(..))")
@@ -42,14 +42,17 @@ public class LogAop {
 
 
         Date visitTime = (Date) request.getAttribute("visitTime"); // 访问时间
+        if (visitTime == null){ // 记录失败时跳过，避免空指针
+            return;
+        }
         Date now = new Date();
         int executionTime = (int)(now.getTime() - visitTime.getTime()); // 访问时长
         String ip = request.getRemoteAddr(); // 访问ip
         String url = request.getRequestURI();// 访问路径
         // 拿到security中的User对象
-        Object user = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (user instanceof User){
-            String username = ((User)user).getUsername();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof User){
+            String username = ((User)authentication.getPrincipal()).getUsername();
             log.setUsername(username);
         }
         log.setExecutionTime(executionTime);
@@ -68,14 +71,17 @@ public class LogAop {
 
 
         Date visitTime = (Date) request.getAttribute("visitTime"); // 访问时间
+        if (visitTime == null){ // 记录失败时跳过，避免空指针
+            return;
+        }
         Date now = new Date();
         int executionTime = (int) (now.getTime() - visitTime.getTime()); // 访问时长
         String ip = request.getRemoteAddr(); // 访问ip
         String url = request.getRequestURI(); // 访问路径
         // 拿到Security中的User对象
-        Object user = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (user instanceof User){
-            String username = ((User) user).getUsername();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof User){
+            String username = ((User) authentication.getPrincipal()).getUsername();
             log.setUsername(username);
         }
         log.setExecutionTime(executionTime);

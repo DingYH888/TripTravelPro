@@ -6,7 +6,6 @@ import com.itbaizhan.travel.pojo.Product;
 import com.itbaizhan.travel.service.FavoriteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -23,18 +22,18 @@ public class FavoriteController {
 
 
     @RequestMapping("/add")
-    public String add(Integer pid, HttpSession session, @RequestHeader("Referer") String referer) {
+    public String add(Integer pid, HttpSession session) {
         Member member = (Member)session.getAttribute("member");
         favoriteService.addFavorite(pid,member.getMid());
-        return "redirect:"+referer;
+        return "redirect:/frontdesk/product/routeDetail?pid=" + pid;
     }
 
 
     @RequestMapping("/del")
-    public String del(Integer pid, HttpSession session, @RequestHeader("Referer") String referer) {
+    public String del(Integer pid, HttpSession session) {
         Member member = (Member)session.getAttribute("member");
         favoriteService.delFavorite(pid,member.getMid());
-        return "redirect:"+referer;
+        return "redirect:/frontdesk/product/routeDetail?pid=" + pid;
     }
 
     @RequestMapping("/myFavorite")

@@ -1,6 +1,7 @@
 package com.itbaizhan.travel.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.itbaizhan.travel.bean.Result;
 import com.itbaizhan.travel.mapper.MemberMapper;
 import com.itbaizhan.travel.pojo.Member;
@@ -10,11 +11,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class MemberService {
+    // 激活链接有效期：24小时
+    private static final long ACTIVE_CODE_TTL = 24 * 60 * 60 * 1000L;
+
     @Autowired
     private MemberMapper memberMapper;
     @Autowired
@@ -68,36 +74,59 @@ public class MemberService {
         // 生成激活码
         String activeCode = UUID.randomUUID().toString();
         // 给用户的邮箱发送一封邮件，该邮件包含一个链接，链接中包含激活码
-        String activeUrl = projectPath + "/frontdesk/member/active?activeCode=" + activeCode;
+        String activeUrl = projectPath + "/frontdesk/member/active?activeCode="
+                + URLEncoder.encode(activeCode, StandardCharsets.UTF_8);
         String text = "恭喜您注册成功！<br/><br/>" +
-              "请点击下方链接激活您的账号：<br/>" +
+              "请点击下方链接激活您的账号（链接24小时内有效）：<br/>" +
                 "<a href='" + activeUrl + "' style='color:#1890ff;text-decoration:none;'>点击激活账号</a>" +
               "（如链接无法点击，请复制以下地址到浏览器地址栏打开）<br/><br/>" +
                       activeUrl + "<br/><br/>";
-        mailUtils.sendMail(member.getEmail(), text, "去哪旅游网激活邮件");
-
-
-        // 保存激活码，激活时比对
+        // 保存激活码及其过期时间
         member.setActiveCode(activeCode);
+        member.setActiveCodeExpire(System.currentTimeMillis() + ACTIVE_CODE_TTL);
         // 保存用户
         memberMapper.insert(member);
+
+        // 发送激活邮件，发送失败时删除未激活账号，避免用户无法重注册也无法登录
+        boolean sendResult = mailUtils.sendMail(member.getEmail(), text, "去哪旅游网激活邮件");
+        if (!sendResult){
+            memberMapper.deleteById(member.getMid());
+            return new Result(false,"激活邮件发送失败，请稍后重试");
+        }
         return new Result(true,"注册成功！");
     }
 
     // 激活用户
     public String active(String activeCode){
-        // 根据激活码查询用户
-        QueryWrapper<Member> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("activeCode",activeCode);
-        Member member = memberMapper.selectOne(queryWrapper);
-        // 没有找到用户：激活失败
-        if(member == null){
-            return "激活失败！激活码错误!";
-        }else {
-            member.setActive(true);
-            memberMapper.updateById(member);
-            return "激活成功，请<a href='"+projectPath+"/frontdesk/login'>登录</a>";
+        String loginUrl = projectPath + "/frontdesk/login";
+        // 1.链接参数缺失
+        if (activeCode == null || activeCode.trim().isEmpty()){
+            return "激活链接不完整，请确认已复制完整的邮件链接。";
         }
+        // 2.根据激活码查询用户
+        QueryWrapper<Member> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("activeCode", activeCode.trim());
+        Member member = memberMapper.selectOne(queryWrapper);
+        if (member == null){
+            return "激活链接无效或已使用，请重新注册获取新的激活邮件，或<a href='"+loginUrl+"'>前往登录</a>。";
+        }
+        // 3.重复激活
+        if (member.isActive()){
+            return "该账号已激活，无需重复操作，请直接<a href='"+loginUrl+"'>登录</a>。";
+        }
+        // 4.激活码过期
+        Long expire = member.getActiveCodeExpire();
+        if (expire != null && expire < System.currentTimeMillis()){
+            return "激活链接已过期（激活码有效期为24小时），请重新注册获取新的激活邮件。";
+        }
+        // 5.激活成功，同时清除激活码，保证链接只能使用一次
+        UpdateWrapper<Member> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("mid", member.getMid())
+                .set("active", true)
+                .set("activeCode", null)
+                .set("activeCodeExpire", null);
+        memberMapper.update(null, updateWrapper);
+        return "激活成功，请<a href='"+loginUrl+"'>登录</a>";
     }
 
     public Result login(String name,String password){

@@ -18,7 +18,7 @@
         <div class="left">
             <ul>
                 <li th:each="product : ${productPage.records}">
-                    <img th:src="@{/upload/img/product/{img}(img=${product.pImage})}" width="320">
+                    <img th:src="${product.pImage}" width="320">
                     <div class="content">
                         <p class="title" th:text="${product.productName}"></p>
                         <div>

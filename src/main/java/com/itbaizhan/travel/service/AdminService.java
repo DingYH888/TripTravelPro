@@ -92,6 +92,10 @@ public class AdminService {
     public void updateRoles(Integer aid,Integer[] ids){
         // 删除用户的所有角色
         adminMapper.deleteAdminAllRoles(aid);
+        // 未勾选任何角色时 ids 为 null，此时仅清空角色
+        if (ids == null){
+            return;
+        }
         // 重新给用户添加角色
         for (Integer rid:ids){
             adminMapper.addAdminRole(aid,rid);

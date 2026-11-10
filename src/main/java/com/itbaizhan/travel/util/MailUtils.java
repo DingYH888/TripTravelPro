@@ -12,7 +12,7 @@ import java.util.Properties;
  * 发邮件工具类
  */
 @Component
-public final class MailUtils{
+public class MailUtils{
     @Value("${mail.user}")
     private String USER; // 发件人邮箱地址
     @Value("${mail.password}")

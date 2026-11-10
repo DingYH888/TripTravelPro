@@ -7,17 +7,17 @@ import com.itbaizhan.travel.pojo.WangEditorResult;
 import com.itbaizhan.travel.service.CategoryService;
 import com.itbaizhan.travel.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.ResourceUtils;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +29,11 @@ public class ProductController {
     private ProductService productService;
     @Autowired
     private CategoryService categoryService;
+    @Value("${upload.path}")
+    private String uploadPath;
+
+    // 允许上传的图片后缀
+    private static final List<String> ALLOWED_SUFFIX = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp");
 
 
     @RequestMapping("/all")
@@ -59,26 +64,32 @@ public class ProductController {
 
     @RequestMapping(value = "/upload")
     @ResponseBody
-    public WangEditorResult upload(HttpServletRequest request, MultipartFile file) throws Exception {
-        // 创建文件夹，存放上传文件。
-        //1.设置上传文件夹的真实路径
-        String realPath = ResourceUtils.getURL("classpath:").getPath()+"/static/upload/";;
-        //2.判断该文件夹是否存在，如果不存在，新建文件夹
-        File dir = new File(realPath);
-        if (!dir.exists()){
-            dir.mkdirs();
+    public WangEditorResult upload(MultipartFile file) throws Exception {
+        // 拿到上传文件名，并校验后缀
+        String originalFilename = file.getOriginalFilename();
+        String suffix = "";
+        if (originalFilename != null && originalFilename.lastIndexOf('.') > -1) {
+            suffix = originalFilename.substring(originalFilename.lastIndexOf('.')).toLowerCase();
         }
-        // 拿到上传文件名
-        String filename = file.getOriginalFilename();
-        filename = UUID.randomUUID()+filename;
-        // 创建空文件
+        if (!ALLOWED_SUFFIX.contains(suffix)) {
+            throw new IllegalArgumentException("只支持上传 jpg/jpeg/png/gif/bmp/webp 格式的图片");
+        }
+
+        // 1.设置上传文件夹（项目运行目录下的 upload/img/product，与前台图片访问路径保持一致）
+        File dir = new File(uploadPath, "img/product");
+        //2.判断该文件夹是否存在，如果不存在，新建文件夹
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new IOException("创建上传目录失败：" + dir.getAbsolutePath());
+        }
+        // 以随机名保存，避免文件名冲突与路径穿越
+        String filename = UUID.randomUUID() + suffix;
         File newFile = new File(dir, filename);
-        // 将上传的文件写到空文件中
-        file.transferTo(newFile);
+        // 将上传的文件写到空文件中（使用绝对路径，避免相对路径被解析到临时目录）
+        file.transferTo(newFile.getAbsoluteFile());
 
 
         WangEditorResult wangEditorResult = new WangEditorResult();
-        String[] data = {"/upload/"+filename};
+        String[] data = {"/upload/img/product/" + filename};
         wangEditorResult.setErrno(0);
         wangEditorResult.setData(data);
         return wangEditorResult;
@@ -105,9 +116,9 @@ public class ProductController {
     }
 
     @RequestMapping("/updateStatus")
-    public String updateStatus(Integer pid,@RequestHeader("Referer") String referer) {
+    public String updateStatus(Integer pid) {
         productService.updateStatus(pid);
-        return "redirect:"+referer;
+        return "redirect:/backstage/product/all";
     }
 
 }

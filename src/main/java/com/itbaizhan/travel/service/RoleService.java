@@ -78,6 +78,10 @@ public class RoleService {
         // 删除角色的所有权限
         roleMapper.deleteRoleAllPermission(rid);
 
+        // 未勾选任何权限时 ids 为 null，此时仅清空权限
+        if (ids == null){
+            return;
+        }
         // 重新给角色添加权限
         for (Integer pid:ids){
             roleMapper.addRolePermission(rid,pid);
