@@ -2,18 +2,30 @@
   <div>
     <SiteHeader />
 
-    <section class="tn-hero">
-      <img src="/frontdesk/images/1.jpg" alt="旅行" />
+    <section class="tn-hero" @mouseenter="pause" @mouseleave="resume">
+      <img
+        v-for="(slide, index) in slides"
+        :key="slide"
+        :src="slide"
+        alt="旅行"
+        :class="['tn-hero-slide', { active: index === current }]"
+      />
       <div class="tn-hero-mask"></div>
       <div class="tn-hero-content">
         <div class="tn-container">
           <h1>发现你的下一段旅程</h1>
           <p>国内外精选线路，透明价格，安心出发</p>
-          <div class="tn-hero-search">
-            <input v-model.trim="keyword" type="text" placeholder="输入目的地或线路名称" @keyup.enter="search" />
-            <button type="button" @click="search">立即搜索</button>
-          </div>
         </div>
+      </div>
+      <button type="button" class="tn-hero-arrow prev" aria-label="上一张" @click="prev">‹</button>
+      <button type="button" class="tn-hero-arrow next" aria-label="下一张" @click="next">›</button>
+      <div class="tn-hero-dots">
+        <span
+          v-for="(slide, index) in slides"
+          :key="index"
+          :class="{ active: index === current }"
+          @click="go(index)"
+        ></span>
       </div>
     </section>
 
@@ -39,16 +51,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, onUnmounted, ref } from 'vue'
 import ProductCard from '../components/ProductCard.vue'
 import SiteFooter from '../components/SiteFooter.vue'
 import SiteHeader from '../components/SiteHeader.vue'
 import { getProducts } from '../api/catalog'
 import type { Product } from '../api/types'
 
-const router = useRouter()
-const keyword = ref('')
+const slides = ['/frontdesk/images/1.jpg', '/frontdesk/images/2.jpg', '/frontdesk/images/3.jpg']
+const current = ref(0)
 const products = ref<Product[]>([])
 const loading = ref(true)
 const error = ref('')
@@ -57,7 +68,34 @@ const themes = ['theme1.jpg', 'theme2.jpg', 'theme3.jpg', 'theme4.jpeg', 'theme5
   (name) => `/frontdesk/images/${name}`
 )
 
+let timer: number | undefined
+
+function go(index: number) {
+  current.value = (index + slides.length) % slides.length
+}
+
+function next() {
+  go(current.value + 1)
+}
+
+function prev() {
+  go(current.value - 1)
+}
+
+function pause() {
+  if (timer) {
+    window.clearInterval(timer)
+    timer = undefined
+  }
+}
+
+function resume() {
+  pause()
+  timer = window.setInterval(next, 4500)
+}
+
 onMounted(async () => {
+  resume()
   try {
     const page = await getProducts({ page: 1, size: 8 })
     products.value = page.records
@@ -68,7 +106,5 @@ onMounted(async () => {
   }
 })
 
-function search() {
-  router.push({ path: '/routes', query: keyword.value ? { productName: keyword.value } : {} })
-}
+onUnmounted(pause)
 </script>
