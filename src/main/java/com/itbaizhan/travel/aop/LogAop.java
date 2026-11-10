@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
+import com.itbaizhan.travel.security.jwt.JwtPrincipal;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -24,7 +24,7 @@ public class LogAop {
     private static final Logger logger = LoggerFactory.getLogger(LogAop.class);
 
 
-    @Pointcut("execution(* com.itbaizhan.travel.controller.backstage.*.*(..))")
+    @Pointcut("execution(* com.itbaizhan.travel.api.admin.*.*(..))")
     public void pointCut(){}
 
 
@@ -51,8 +51,8 @@ public class LogAop {
         String url = request.getRequestURI();// 访问路径
         // 拿到security中的User对象
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof User){
-            String username = ((User)authentication.getPrincipal()).getUsername();
+        if (authentication != null && authentication.getPrincipal() instanceof JwtPrincipal){
+            String username = ((JwtPrincipal)authentication.getPrincipal()).getUsername();
             log.setUsername(username);
         }
         log.setExecutionTime(executionTime);
@@ -80,8 +80,8 @@ public class LogAop {
         String url = request.getRequestURI(); // 访问路径
         // 拿到Security中的User对象
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof User){
-            String username = ((User) authentication.getPrincipal()).getUsername();
+        if (authentication != null && authentication.getPrincipal() instanceof JwtPrincipal){
+            String username = ((JwtPrincipal) authentication.getPrincipal()).getUsername();
             log.setUsername(username);
         }
         log.setExecutionTime(executionTime);

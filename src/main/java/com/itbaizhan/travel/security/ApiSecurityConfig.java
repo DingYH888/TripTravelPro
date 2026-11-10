@@ -10,6 +10,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -60,6 +61,11 @@ public class ApiSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilterBefore(adminJwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(memberJwtFilter, UsernamePasswordAuthenticationFilter.class);
+    }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

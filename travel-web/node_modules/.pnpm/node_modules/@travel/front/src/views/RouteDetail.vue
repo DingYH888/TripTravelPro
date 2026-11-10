@@ -36,7 +36,7 @@
 
         <section class="tn-desc">
           <h3>线路详情</h3>
-          <div v-html="product.productDesc || '<p>暂无详情</p>'"></div>
+          <div v-html="sanitizeHtml(product.productDesc || '<p>暂无详情</p>')"></div>
         </section>
 
         <section class="tn-desc">
@@ -64,6 +64,7 @@ import { addFavorite, favoriteStatus, removeFavorite } from '../api/favorite'
 import type { Product } from '../api/types'
 import { useMemberStore } from '../stores/member'
 import { formatPrice, resolveImage } from '../utils/format'
+import { sanitizeHtml } from '../utils/sanitize'
 
 const route = useRoute()
 const router = useRouter()

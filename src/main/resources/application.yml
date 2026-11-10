@@ -19,11 +19,6 @@ spring:
     multipart:
       max-file-size: 10MB # 最大单个文件
       max-request-size: 10MB # 一次请求最大上传
-    # 打成jar包必须添加如下配置才能找到页面
-  thymeleaf:
-    mode: HTML
-    cache: false
-    prefix: classpath:/templates
 
 
 #??mybatis-plus

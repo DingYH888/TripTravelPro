@@ -2,8 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import { TOKEN_KEY } from '../api/http'
 
-// 统一登录页是唯一入口，注册与激活属于认证流程，保留匿名访问
-const PUBLIC_PATHS = new Set(['/login', '/register', '/activate'])
+// 首页、线路浏览与认证流程允许匿名访问；收藏需要登录
+const PUBLIC_PATHS = new Set(['/', '/routes', '/login', '/register', '/activate'])
 
 const router = createRouter({
   history: createWebHistory(),
@@ -23,7 +23,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  if (PUBLIC_PATHS.has(to.path)) {
+  if (PUBLIC_PATHS.has(to.path) || to.name === 'route-detail') {
     return true
   }
   if (!localStorage.getItem(TOKEN_KEY)) {

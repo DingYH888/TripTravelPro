@@ -1,1 +1,0 @@
-import{J as e}from"./index-CIsfJedc.js";function o(t=1,r=8){return e.get("/member/favorites",{params:{page:t,size:r}})}function s(t){return e.get(`/member/favorites/${t}/status`)}function i(t){return e.post(`/member/favorites/${t}`)}function m(t){return e.delete(`/member/favorites/${t}`)}export{i as a,s as f,o as l,m as r};

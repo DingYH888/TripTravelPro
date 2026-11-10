@@ -74,7 +74,7 @@ public class MemberService {
         // 生成激活码
         String activeCode = UUID.randomUUID().toString();
         // 给用户的邮箱发送一封邮件，该邮件包含一个链接，链接中包含激活码
-        String activeUrl = projectPath + "/frontdesk/member/active?activeCode="
+        String activeUrl = projectPath + "/activate?code="
                 + URLEncoder.encode(activeCode, StandardCharsets.UTF_8);
         String text = "恭喜您注册成功！<br/><br/>" +
               "请点击下方链接激活您的账号（链接24小时内有效）：<br/>" +
@@ -98,7 +98,7 @@ public class MemberService {
 
     // 激活用户
     public String active(String activeCode){
-        String loginUrl = projectPath + "/frontdesk/login";
+        String loginUrl = projectPath + "/login";
         // 1.链接参数缺失
         if (activeCode == null || activeCode.trim().isEmpty()){
             return "激活链接不完整，请确认已复制完整的邮件链接。";

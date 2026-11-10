@@ -74,7 +74,7 @@ class ActivationFlowIntegrationTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mailUtils).sendMail(eq(TEST_EMAIL), captor.capture(), anyString());
         Matcher matcher = Pattern
-                .compile("http://localhost:8080/frontdesk/member/active\\?activeCode=([0-9a-f-]{36})")
+                .compile("http://localhost:8080/activate\\?code=([0-9a-f-]{36})")
                 .matcher(captor.getValue());
         assertTrue(matcher.find(), "邮件中应包含格式正确的激活链接");
         String activeCode = matcher.group(1);

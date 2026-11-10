@@ -37,4 +37,5 @@ build/
 .env
 backup/
 upload/
+logs/
 

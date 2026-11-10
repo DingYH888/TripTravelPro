@@ -90,14 +90,7 @@
           <el-button v-if="form.pImage" type="danger" link @click="form.pImage = ''">移除图片</el-button>
         </el-form-item>
         <el-form-item label="线路描述" prop="productDesc">
-          <el-input
-            v-model="form.productDesc"
-            type="textarea"
-            :rows="4"
-            maxlength="500"
-            show-word-limit
-            placeholder="请输入线路描述"
-          />
+          <RichTextEditor v-model="form.productDesc" placeholder="请输入线路描述，支持图文混排" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -112,6 +105,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules, UploadRequestOptions } from 'element-plus'
+import RichTextEditor from '../components/RichTextEditor.vue'
 import {
   createProduct,
   getAllCategories,

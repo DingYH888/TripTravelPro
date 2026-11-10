@@ -15,7 +15,7 @@
       <p class="sub">激活成功即可登录</p>
 
       <p v-if="loading" class="tn-loading">正在激活...</p>
-      <p v-else-if="message" class="tn-alert" :class="failed ? 'error' : 'ok'" v-html="message"></p>
+      <p v-else-if="message" class="tn-alert" :class="failed ? 'error' : 'ok'" v-html="sanitizeHtml(message)"></p>
       <p v-if="failed && !message" class="tn-alert error">激活失败，请检查激活链接是否完整或已过期</p>
 
       <div class="tn-auth-foot">
@@ -33,6 +33,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import SiteFooter from '../components/SiteFooter.vue'
 import { activate } from '../api/auth'
+import { sanitizeHtml } from '../utils/sanitize'
 
 const route = useRoute()
 const loading = ref(true)
