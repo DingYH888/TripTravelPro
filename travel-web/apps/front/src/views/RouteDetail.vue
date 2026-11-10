@@ -103,7 +103,7 @@ async function load() {
 }
 
 function goLogin() {
-  router.push({ path: '/login', query: { redirect: route.fullPath } })
+  router.push({ path: '/login', query: { identity: 'member', redirect: route.fullPath } })
 }
 
 async function toggleFavorite() {

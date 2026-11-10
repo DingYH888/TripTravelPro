@@ -32,9 +32,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useAdminStore } from '../stores/admin'
+import { unifiedLoginUrl } from '../api/http'
 
 interface MenuItem {
   path: string
@@ -43,7 +44,6 @@ interface MenuItem {
 }
 
 const route = useRoute()
-const router = useRouter()
 const adminStore = useAdminStore()
 
 const allMenus: MenuItem[] = [
@@ -71,6 +71,6 @@ async function handleLogout() {
   }
   await adminStore.logout()
   ElMessage.success('已退出登录')
-  router.replace('/login')
+  window.location.replace(unifiedLoginUrl('admin'))
 }
 </script>

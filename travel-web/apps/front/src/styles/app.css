@@ -83,7 +83,7 @@ img {
 }
 
 .tn-logo img {
-  height: 46px;
+  height: 54px;
 }
 
 .tn-search {
@@ -574,7 +574,7 @@ img {
 }
 
 .tn-auth-bar .tn-logo img {
-  height: 40px;
+  height: 46px;
 }
 
 .tn-auth-card {
@@ -596,6 +596,48 @@ img {
   color: var(--tn-muted);
   font-size: 13px;
   margin-bottom: 22px;
+}
+
+.tn-auth-bar-tip {
+  font-size: 13px;
+  color: var(--tn-muted);
+  letter-spacing: 1px;
+}
+
+.tn-auth-tabs {
+  display: flex;
+  border: 1px solid #dcdfe6;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.tn-auth-tabs button {
+  flex: 1;
+  height: 42px;
+  border: 0;
+  background: #f7f8fa;
+  color: #606266;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.tn-auth-tabs button + button {
+  border-left: 1px solid #dcdfe6;
+}
+
+.tn-auth-tabs button.active {
+  background: var(--tn-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.tn-auth-hint {
+  font-size: 13px;
+  color: var(--tn-muted);
+  margin: 0 0 18px;
+  line-height: 1.6;
 }
 
 .tn-field {

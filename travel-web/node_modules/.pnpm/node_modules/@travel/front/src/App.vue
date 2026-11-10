@@ -16,8 +16,9 @@ onMounted(() => {
   member.restore()
   expiredHandler = () => {
     member.clear()
-    if (router.currentRoute.value.meta.requiresAuth) {
-      router.push({ path: '/login', query: { redirect: router.currentRoute.value.fullPath } })
+    const current = router.currentRoute.value
+    if (current.path !== '/login') {
+      router.push({ path: '/login', query: { identity: 'member', redirect: current.fullPath } })
     }
   }
   window.addEventListener('auth-expired', expiredHandler)

@@ -2,7 +2,7 @@
   <div class="tn-auth-page">
     <div class="tn-auth-bar">
       <RouterLink to="/" class="tn-logo">
-        <img src="/frontdesk/images/logo.png" alt="去哪旅游网" />
+        <img src="/images/brand-logo.png" alt="去哪旅游网" />
       </RouterLink>
       <RouterLink to="/">
         <span class="glyphicon glyphicon-home"></span>

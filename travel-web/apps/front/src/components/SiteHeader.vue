@@ -22,7 +22,7 @@
 
     <div class="tn-container tn-header-main">
       <RouterLink to="/" class="tn-logo">
-        <img src="/frontdesk/images/logo.png" alt="去哪旅游网" />
+        <img src="/images/brand-logo.png" alt="去哪旅游网" />
       </RouterLink>
 
       <div class="tn-search">
@@ -74,6 +74,6 @@ function search() {
 
 async function handleLogout() {
   await member.logout()
-  router.push('/')
+  router.replace({ path: '/login', query: { identity: 'member' } })
 }
 </script>

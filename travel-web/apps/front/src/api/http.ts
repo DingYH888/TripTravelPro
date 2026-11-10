@@ -4,6 +4,9 @@ export const TOKEN_KEY = 'travel_member_token'
 export const REFRESH_KEY = 'travel_member_refresh'
 export const USER_KEY = 'travel_member_username'
 
+// 登录接口本身返回 401 属于认证失败，不应触发全局登录失效逻辑
+const AUTH_ENTRY_PATTERN = /\/auth\/(member|admin)\/login$/
+
 const http = axios.create({
   baseURL: '/api/v1',
   timeout: 15000
@@ -26,7 +29,8 @@ http.interceptors.response.use(
     return body ? body.data : body
   },
   (error) => {
-    if (error.response?.status === 401) {
+    const requestUrl = error.config?.url || ''
+    if (error.response?.status === 401 && !AUTH_ENTRY_PATTERN.test(requestUrl)) {
       localStorage.removeItem(TOKEN_KEY)
       localStorage.removeItem(REFRESH_KEY)
       localStorage.removeItem(USER_KEY)

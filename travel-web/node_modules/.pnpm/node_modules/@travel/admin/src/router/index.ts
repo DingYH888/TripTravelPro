@@ -1,11 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import AdminLayout from '../layouts/AdminLayout.vue'
-import { TOKEN_KEY } from '../api/http'
+import { redirectToUnifiedLogin, TOKEN_KEY } from '../api/http'
 import { loadPermissions } from '../stores/admin'
 
 const routes: RouteRecordRaw[] = [
-  { path: '/login', name: 'login', component: () => import('../views/Login.vue') },
   {
     path: '/',
     component: AdminLayout,
@@ -63,13 +62,11 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  const token = localStorage.getItem(TOKEN_KEY)
-
-  if (to.path === '/login') {
-    return token ? '/' : true
-  }
-  if (!token) {
-    return { path: '/login', query: { redirect: to.fullPath } }
+  if (!localStorage.getItem(TOKEN_KEY)) {
+    // 后台不再提供独立登录页，统一跳转到全局登录入口
+    const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+    redirectToUnifiedLogin(`${base}${to.fullPath}`)
+    return false
   }
 
   const permission = to.meta.permission as string | undefined
