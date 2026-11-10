@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itbaizhan.travel.pojo.Category;
 import com.itbaizhan.travel.pojo.Product;
 import com.itbaizhan.travel.pojo.WangEditorResult;
+import com.itbaizhan.travel.infrastructure.cache.CatalogCacheInvalidator;
 import com.itbaizhan.travel.service.CategoryService;
 import com.itbaizhan.travel.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class ProductController {
     private ProductService productService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private CatalogCacheInvalidator cacheInvalidator;
     @Value("${upload.path}")
     private String uploadPath;
 
@@ -59,6 +62,7 @@ public class ProductController {
     @RequestMapping("/add")
     public String add(Product product) {
         productService.add(product);
+        cacheInvalidator.invalidate();
         return "redirect:/backstage/product/all";
     }
 
@@ -112,12 +116,14 @@ public class ProductController {
     @RequestMapping("/update")
     public String update(Product product) {
         productService.update(product);
+        cacheInvalidator.invalidate();
         return "redirect:/backstage/product/all";
     }
 
     @RequestMapping("/updateStatus")
     public String updateStatus(Integer pid) {
         productService.updateStatus(pid);
+        cacheInvalidator.invalidate();
         return "redirect:/backstage/product/all";
     }
 

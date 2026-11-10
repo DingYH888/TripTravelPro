@@ -1,0 +1,15 @@
+services:
+  travel-nginx:
+    image: nginx:latest
+    container_name: travel-nginx
+    ports:
+      - "127.0.0.1:8088:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../../travel-web/apps/front/dist:/usr/share/nginx/html-root/front:ro
+      - ../../travel-web/apps/admin/dist:/usr/share/nginx/html-root/admin:ro
+      - ../../src/main/resources/static:/var/www/static:ro
+      - ../../upload:/var/www/dynamic/upload:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

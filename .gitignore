@@ -32,3 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 问题处理报告.md
+
+### local secrets / backups ###
+.env
+backup/
+upload/
+

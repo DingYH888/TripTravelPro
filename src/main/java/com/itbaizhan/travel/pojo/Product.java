@@ -2,7 +2,9 @@ package com.itbaizhan.travel.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
@@ -20,6 +22,8 @@ public class Product {
     private String hotline;// 热线电话
     private Boolean status; // 产品状态  false:关闭  true:开启
     private String productDesc; //产品详情
+    @JsonProperty("pImage")
+    @Getter(onMethod_ = {@JsonProperty("pImage")})
     private String pImage; // 产品图片
     private Integer cid; // 产品类型id
     @TableField(exist = false)

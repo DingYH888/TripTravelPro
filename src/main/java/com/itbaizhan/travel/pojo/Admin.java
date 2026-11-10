@@ -2,6 +2,7 @@ package com.itbaizhan.travel.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import java.util.List;
 
@@ -11,6 +12,7 @@ public class Admin {
     @TableId
     private Integer aid;
     private String username;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private String phoneNum;
     private String email;

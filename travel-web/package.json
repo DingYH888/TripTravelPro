@@ -1,0 +1,12 @@
+{
+  "name": "travel-web",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev:front": "pnpm --filter @travel/front dev",
+    "build:front": "pnpm --filter @travel/front build",
+    "dev:admin": "pnpm --filter @travel/admin dev",
+    "build:admin": "pnpm --filter @travel/admin build"
+  },
+  "packageManager": "pnpm@9.15.9"
+}

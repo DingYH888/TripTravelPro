@@ -1,10 +1,13 @@
 # ??
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 
 # ???
 spring:
+  # 本地敏感配置（JWT_SECRET 等），文件不入库
+  config:
+    import: optional:file:./.env[.properties]
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
 #    url: jdbc:mysql:///travel?serverTimezone=UTC
@@ -36,7 +39,7 @@ mybatis-plus:
 # ????
 logging:
   pattern:
-    console: '%d{HH:mm:ss.SSS} %clr(%-5level) ---  [%-15thread] %cyan(%-50logger{50}):%msg%n'
+    console: '%d{HH:mm:ss.SSS} %clr(%-5level) ---  [%-15thread] [%X{traceId:-}] %cyan(%-50logger{50}):%msg%n'
 
 # 发送邮件配置
 mail:
@@ -50,4 +53,42 @@ project:
 # 上传文件存储目录（默认项目运行目录下的 upload 文件夹）
 upload:
   path: ${UPLOAD_PATH:${user.dir}/upload}
+
+# 新增：Redis 双实例（cache 可淘汰 / state 不可淘汰）
+travel:
+  redis:
+    cache:
+      host: ${REDIS_CACHE_HOST:127.0.0.1}
+      port: ${REDIS_CACHE_PORT:6379}
+      database: ${REDIS_CACHE_DB:0}
+      password: ${REDIS_CACHE_PASSWORD:}
+      timeout: 2s
+      max-total: 32
+      max-idle: 8
+      min-idle: 2
+    state:
+      host: ${REDIS_STATE_HOST:127.0.0.1}
+      port: ${REDIS_STATE_PORT:6380}
+      database: ${REDIS_STATE_DB:0}
+      password: ${REDIS_STATE_PASSWORD:}
+      timeout: 2s
+      max-total: 32
+      max-idle: 8
+      min-idle: 2
+  jwt:
+    issuer: travel
+    secret: ${JWT_SECRET:change-me-in-local-env-file-please-32bytes}
+    admin-access-ttl: 2h
+    member-access-ttl: 7d
+    refresh-ttl: 14d
+
+# Actuator：仅暴露健康与信息
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
 

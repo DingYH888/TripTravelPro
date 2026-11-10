@@ -1,6 +1,7 @@
 package com.itbaizhan.travel.controller.backstage;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.itbaizhan.travel.infrastructure.cache.CatalogCacheInvalidator;
 import com.itbaizhan.travel.pojo.Category;
 import com.itbaizhan.travel.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import org.springframework.web.servlet.ModelAndView;
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private CatalogCacheInvalidator cacheInvalidator;
 
 
     @RequestMapping("/all")
@@ -30,6 +33,7 @@ public class CategoryController {
     @RequestMapping("/add")
     public String add(Category category){
         categoryService.add(category);
+        cacheInvalidator.invalidate();
         return "redirect:/backstage/category/all";
     }
 
@@ -47,6 +51,7 @@ public class CategoryController {
     @RequestMapping("/update")
     public String update(Category category){
         categoryService.update(category);
+        cacheInvalidator.invalidate();
         return "redirect:/backstage/category/all";
     }
 
@@ -54,6 +59,7 @@ public class CategoryController {
     @RequestMapping("/delete")
     public String delete(Integer cid){
         categoryService.delete(cid);
+        cacheInvalidator.invalidate();
         return "redirect:/backstage/category/all";
     }
 }

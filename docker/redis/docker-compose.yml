@@ -1,0 +1,40 @@
+name: travel-redis
+
+services:
+  redis-cache:
+    image: redis:7-alpine
+    container_name: travel-redis-cache
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - ./redis-cache.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-cache-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "PING"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  redis-state:
+    image: redis:7-alpine
+    container_name: travel-redis-state
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "127.0.0.1:6380:6380"
+    volumes:
+      - ./redis-state.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-state-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6380", "PING"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  redis-cache-data:
+  redis-state-data:
