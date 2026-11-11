@@ -42,9 +42,9 @@ mail:
   user: ${MAIL_USER:2728093475@qq.com}
   # 发件人密码
   password: ${MAIL_PASSWORD:rciidjejecwadcdf}
-# 项目路径
+# 项目路径（激活邮件链接前缀，必须是前台 SPA 地址，不是后端端口）
 project:
-  path: ${PROJECT_PATH:http://localhost:8080}
+  path: ${PROJECT_PATH:http://localhost:5173}
 # 上传文件存储目录（默认项目运行目录下的 upload 文件夹）
 upload:
   path: ${UPLOAD_PATH:${user.dir}/upload}

@@ -159,7 +159,7 @@ JWT_SECRET=<至少 32 字节的随机字符串>
 | `REDIS_STATE_HOST` / `REDIS_STATE_PORT` | `127.0.0.1` / `6380` | 状态实例 |
 | `JWT_SECRET` | 占位值 | JWT 签名密钥，必须覆盖 |
 | `MAIL_USER` / `MAIL_PASSWORD` | 示例 QQ 邮箱 | 发件账号与 SMTP 授权码 |
-| `PROJECT_PATH` | `http://localhost:8080` | 激活邮件链接前缀 |
+| `PROJECT_PATH` | `http://localhost:5173` | 激活邮件与登录引导的链接前缀，必须指向前台 SPA 地址（Nginx 部署改为 `http://localhost:8088` 或生产域名），不能填后端端口 |
 | `UPLOAD_PATH` | `${user.dir}/upload` | 图片上传目录 |
 
 ### 4. 启动 Redis
